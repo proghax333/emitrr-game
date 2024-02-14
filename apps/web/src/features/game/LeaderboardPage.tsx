@@ -1,6 +1,5 @@
 import { useGetLeaderboardQuery } from "@/state/game";
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
 
 function LeaderboardRow({ data }: any) {
   return (
@@ -13,11 +12,9 @@ function LeaderboardRow({ data }: any) {
 }
 
 export function LeaderboardPage() {
-  const { isLoading, isSuccess, isError, data, error } = useGetLeaderboardQuery(
-    {
-      refetchInterval: 1000,
-    }
-  );
+  const { isLoading, isSuccess, isError, data } = useGetLeaderboardQuery({
+    refetchInterval: 1000,
+  });
 
   let contents: ReactNode = null;
 

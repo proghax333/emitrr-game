@@ -11,7 +11,6 @@ import {
   gameWin,
   setGameState,
   shuffle,
-  takeSpecialCard,
   viewCard,
 } from "./gameSlice";
 import { useUpdateUserScoreMutation } from "@/state/user";
