@@ -7,7 +7,7 @@ export type GameState = {
   cards: Card[];
   selectedCard: Card | null;
   viewedCards: Card[];
-  status: "unknown" | "ready" | "running" | "done";
+  status: "unknown" | "running" | "done";
 };
 
 const initialState: GameState = {
