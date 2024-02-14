@@ -14,9 +14,20 @@ export function LeaderboardPage() {
   return (
     <main className="h-full w-full">
       <div className="flex w-full items-center justify-center flex-col pt-8">
-        <h2 className="font-oswald font-bold text-4xl border-4 p-2">
-          Leaderboard
-        </h2>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/home"
+            className="font-oswald font-bold text-4xl border-4 p-2"
+          >
+            Cat Game
+          </Link>
+          <Link
+            to="/leaderboard"
+            className="font-oswald font-bold text-4xl  p-2"
+          >
+            Leaderboard
+          </Link>
+        </div>
         <div className="mt-8 ">
           <table className="border-spacing-2 w-full max-w-xl">
             <thead>

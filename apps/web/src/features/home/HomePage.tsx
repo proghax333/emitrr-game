@@ -8,12 +8,20 @@ export function HomePage() {
           Cats Game
         </h2>
         <p className="font-inter mt-12">Welcome to the cats game.</p>
-        <Link
-          to="/game"
-          className="text-center bg-blue-600 p-2 rounded-md shadow-md mt-2 text-sm"
-        >
-          New Game
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to="/game"
+            className="text-center bg-slate-700 p-4 rounded-sm shadow-md mt-2 text-sm"
+          >
+            New Game
+          </Link>
+          <Link
+            to="/leaderboard"
+            className="text-center bg-slate-800 p-4 rounded-sm shadow-md mt-2 text-sm"
+          >
+            Go to leaderboard
+          </Link>
+        </div>
       </div>
     </main>
   );

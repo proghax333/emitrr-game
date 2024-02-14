@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { ReactNode, cloneElement, useState } from "react";
 import { Card, cardTypes } from "./Card";
 import { useAppSelector } from "../app/hook";
+import { Link } from "react-router-dom";
 
 type CardStackProps = {
   children: ReactNode;
@@ -100,8 +101,17 @@ export function GameMain() {
   return (
     <main className="h-full bg-slate-900 w-full">
       <div className="h-full flex flex-col items-center">
-        <div className="h-full p-8 pt-12 w-full max-w-2xl bg-slate-800">
-          <div className="flex w-full gap-8 items-center justify-center">
+        <div className="h-full p-8 pt-2 w-full max-w-2xl bg-slate-800">
+          <div className="flex items-center justify-center">
+            <Link
+              to="/home"
+              className="font-oswald font-bold text-2xl border-4 p-2"
+            >
+              Cat Game
+            </Link>
+          </div>
+          <hr className="mt-2" />
+          <div className="flex w-full gap-8 items-center justify-center pt-4">
             <div>
               <CardStack>
                 {cards.map((card, index) => {
