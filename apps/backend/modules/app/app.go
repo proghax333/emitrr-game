@@ -36,34 +36,34 @@ func CreateApp() *gin.Engine {
 	// Initialize redis
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
+	dbIndex := os.Getenv("REDIS_DB")
 
 	if host == "" {
 		host = "127.0.0.1"
 	}
 
-	var portNum uint
-	if i, err := strconv.ParseUint(port, 10, 32); err != nil {
+	var portNum uint = 6379
+	if i, err := strconv.ParseUint(port, 10, 32); err == nil {
 		portNum = uint(i)
-	}
-	if portNum == 0 {
-		portNum = 6379
-	}
-
-	var redisDb int = 0
-	if i, err := strconv.ParseUint(port, 10, 32); err != nil {
-		redisDb = int(i)
 	}
 
 	REDIS_HOST := host
 	REDIS_PORT := portNum
+
+	var redisDb int = 0
+	if i, err := strconv.ParseUint(dbIndex, 10, 32); err == nil {
+		redisDb = int(i)
+	}
 	REDIS_DB := redisDb
 
-	redis := redis.NewClient(&redis.Options{
+	redisOptions := &redis.Options{
 		Addr:     fmt.Sprintf("%v:%v", REDIS_HOST, REDIS_PORT),
 		Username: os.Getenv("REDIS_USERNAME"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       REDIS_DB,
-	})
+	}
+	redis := redis.NewClient(redisOptions)
+	appContext.Logger.Println("Value: ", *redisOptions)
 	appContext.Redis = redis
 
 	// Initialize HTTP Server
