@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -74,6 +75,7 @@ func CreateApp() *gin.Engine {
 		Path:     "/",
 		MaxAge:   60 * 60 * 24,
 		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	app.Use(sessions.Sessions("session", store))
