@@ -29,6 +29,12 @@ export function SignupPage() {
                 </h2>
               )}
 
+              {signupMutation.isError && (
+                <h2 className="p-2 text-center bg-red-900 mt-4 text-white text-sm">
+                  Error: {(signupMutation.error as any).response.data.message}
+                </h2>
+              )}
+
               <input
                 className="transition-all outline-none focus:ring-4 text-sm mt-8 bg-gray-700 rounded-lg p-2 px-4"
                 placeholder="Enter a name"
