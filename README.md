@@ -1,6 +1,6 @@
-# tickers-try
+# A Cat Game
 
-Building a full-stack product.
+An assignment.
 
 | Codebase              |      Description          |
 | :-------------------- | :-----------------------: |
