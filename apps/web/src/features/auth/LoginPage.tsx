@@ -9,7 +9,7 @@ export function LoginPage() {
 
   async function onSubmit(data: LoginFormType) {
     await loginMutation.mutateAsync(data);
-    window.location.href = "/home";
+    window.location.href = "/game";
   }
 
   return (
@@ -22,6 +22,18 @@ export function LoginPage() {
                 Login |{" "}
                 <span className="font-montserrat text-blue-300">CatGame</span>
               </h1>
+
+              {loginMutation.isSuccess && (
+                <h2 className="p-2 text-center bg-green-600 mt-4 text-white text-sm">
+                  Logged in successfully!
+                </h2>
+              )}
+
+              {loginMutation.isError && (
+                <h2 className="p-2 text-center bg-red-900 mt-4 text-white text-sm">
+                  Error: {(loginMutation.error as any).response.data.message}
+                </h2>
+              )}
 
               <input
                 className="transition-all outline-none focus:ring-4 text-sm mt-8 bg-gray-700 rounded-lg p-2 px-4"

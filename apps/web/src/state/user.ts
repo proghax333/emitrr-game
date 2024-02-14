@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { QueryOptions, useMutation, useQuery } from "@tanstack/react-query";
+import { UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query";
 
 export type GetUserResult = {
   data: {
@@ -9,7 +9,10 @@ export type GetUserResult = {
   };
 };
 
-export function useGetUserQuery(userId?: number, options: QueryOptions = {}) {
+export function useGetUserQuery(
+  userId?: number,
+  options: Partial<UseQueryOptions> = {}
+) {
   return useQuery({
     queryKey: ["users", userId],
     queryFn: async () => {
@@ -21,7 +24,7 @@ export function useGetUserQuery(userId?: number, options: QueryOptions = {}) {
   });
 }
 
-export function useGetCurrentUserQuery(options: QueryOptions = {}) {
+export function useGetCurrentUserQuery(options: Partial<UseQueryOptions> = {}) {
   return useQuery({
     queryKey: ["users", "me"],
     queryFn: async () => {

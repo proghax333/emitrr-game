@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	appcontext "github.com/proghax333/emitrr-game/apps/backend/modules/appcontext"
@@ -34,10 +34,8 @@ func (this *LeaderboardController) GetLeaderboardHandler(c *gin.Context) {
 	}
 
 	userIDs := make([]string, 0, 10)
-	scoresMap := make(map[string]uint)
 	lo.ForEach(scores, func(x services.MemberScore, index int) {
 		userIDs = append(userIDs, x.Member)
-		scoresMap[x.Member] = uint(x.Score)
 	})
 
 	users := []models.User{}
@@ -46,12 +44,23 @@ func (this *LeaderboardController) GetLeaderboardHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not retrieve scores."})
 	}
 
-	resultUsers := lo.Map(users, func(user models.User, index int) gin.H {
+	userInfos := make(map[uint]models.User)
+
+	for _, user := range users {
+		userInfos[user.ID] = user
+	}
+
+	resultUsers := lo.Map(scores, func(x services.MemberScore, index int) gin.H {
+		temp, _ := strconv.ParseUint(x.Member, 10, 32)
+		id := uint(temp)
+
+		user := userInfos[id]
+
 		return gin.H{
-			"id":       user.ID,
+			"id":       id,
 			"name":     user.Name,
 			"username": user.Username,
-			"score":    scoresMap[fmt.Sprint(user.ID)],
+			"score":    x.Score,
 		}
 	})
 

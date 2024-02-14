@@ -1,3 +1,3 @@
-import { LeaderboardPage } from "@/features/leaderboard/LeaderboardPage";
+import { LeaderboardPage } from "@/features/game/LeaderboardPage";
 
 export default LeaderboardPage;

@@ -29,22 +29,11 @@ export function LeaderboardPage() {
     contents = <div></div>;
   } else if (isSuccess && data) {
     contents = (
-      <div className="flex w-full items-center justify-center flex-col pt-8">
-        <div className="flex items-center gap-2">
-          <Link
-            to="/home"
-            className="font-oswald font-bold text-4xl border-4 p-2"
-          >
-            Cat Game
-          </Link>
-          <Link
-            to="/leaderboard"
-            className="font-oswald font-bold text-4xl  p-2"
-          >
-            Leaderboard
-          </Link>
-        </div>
-        <div className="mt-8 ">
+      <div className="flex w-full items-center justify-center flex-col">
+        <h1 className="font-oswald text-3xl font-bold my-2 underline">
+          Leaderboard
+        </h1>
+        <div className="mt-2">
           <table className="border-spacing-2 w-full max-w-xl">
             <thead>
               <tr>
@@ -66,8 +55,8 @@ export function LeaderboardPage() {
                 ) => {
                   return (
                     <LeaderboardRow
+                      key={`entry-leaderboard-${user.id}`}
                       data={{
-                        key: `entry-${user.id}`,
                         rank: index + 1,
                         name: user.name,
                         score: user.score,
@@ -82,8 +71,6 @@ export function LeaderboardPage() {
       </div>
     );
   }
-
-  console.log(data);
 
   return <main className="h-full w-full">{contents}</main>;
 }

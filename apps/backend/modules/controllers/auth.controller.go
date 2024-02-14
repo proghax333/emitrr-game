@@ -34,7 +34,7 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 
 	if err := c.BindJSON(&data); err != nil {
 		// If there is an error parsing JSON, return an error response
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -42,13 +42,13 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 	result := this.ctx.Db.Model(&models.User{}).First(&user, "username = ? OR email = ?", data.Login, data.Login)
 
 	if result.Error != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "D: Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid username or password"})
 		return
 	}
 
 	// Compare hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "B: Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid username or password"})
 		return
 	}
 
@@ -61,7 +61,7 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 		HttpOnly: true,
 	})
 	if err := session.Save(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save session"})
 		return
 	}
 
@@ -74,20 +74,20 @@ func (this *AuthController) SignupHandler(c *gin.Context) {
 
 	// Bind JSON request body to userData struct
 	if err := c.BindJSON(&userData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON"})
 		return
 	}
 
 	// Check if password matches confirm password
 	if userData.Password != userData.ConfirmPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Password and confirm password do not match"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Password and confirm password do not match"})
 		return
 	}
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to hash password"})
 		return
 	}
 
@@ -102,7 +102,7 @@ func (this *AuthController) SignupHandler(c *gin.Context) {
 	// Save the user to the database
 	result := this.ctx.Db.Create(&newUser)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create user"})
 		return
 	}
 
@@ -114,11 +114,13 @@ func (this *AuthController) Logout(c *gin.Context) {
 	session := sessions.Default(c)
 
 	session.Options(sessions.Options{
-		MaxAge: -1,
+		MaxAge:   -1,
+		Path:     "/",
+		HttpOnly: true,
 	})
 
 	if err := session.Save(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save session"})
 		return
 	}
 

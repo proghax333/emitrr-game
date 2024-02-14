@@ -168,8 +168,6 @@ export function GameMain() {
       counter: newGameState.counter,
     };
 
-    console.log(newGameState);
-
     dispatch(shuffle(shuffledGameState));
   }
 
@@ -185,10 +183,12 @@ export function GameMain() {
 
   // Game business logic
   useEffect(() => {
+    if (!user) {
+      return;
+    }
     if (game.status !== "running") {
       return;
     }
-
     const selectedCard = game.selectedCard;
 
     let lose = false;
@@ -200,33 +200,25 @@ export function GameMain() {
         // Lose
         lose = true;
         dispatch(gameLose());
+
+        updateUserScoreMutation.mutate({
+          userId: user!.id,
+          result: "lose",
+        });
       }
     } else if (selectedCard?.type === "shuffle" && !selectedCard.isShuffled) {
       shuffleGame();
     } else {
       if (!lose && game.cards.length === 0) {
         dispatch(gameWin());
+
+        updateUserScoreMutation.mutate({
+          userId: user.id,
+          result: "win",
+        });
       }
     }
   }, [game]);
-
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    if (game.result === "win") {
-      updateUserScoreMutation.mutate({
-        userId: user.id,
-        result: "win",
-      });
-    } else if (game.result === "lose") {
-      updateUserScoreMutation.mutate({
-        userId: user.id,
-        result: "lose",
-      });
-    }
-  }, [user, game.status]);
 
   function onCardSelect(card: Card) {
     if (game.status !== "running") {
@@ -244,73 +236,56 @@ export function GameMain() {
   }
 
   return (
-    <main className="h-full bg-slate-900 w-full">
-      <div className="h-full flex flex-col items-center">
-        <div className="h-full p-8 pt-2 w-full max-w-2xl bg-slate-800">
-          <div className="flex items-center justify-center">
-            <Link
-              to="/home"
-              className="font-oswald font-bold text-2xl border-4 p-2"
+    <div>
+      {game.status === "done" && (
+        <div className="w-full flex justify-center py-2 mt-2">
+          <div className="flex gap-2">
+            <div className="p-2">
+              {game.result === "win" && <div>You won!</div>}
+              {game.result === "lose" && <div>You lost!</div>}
+            </div>
+            <button
+              onClick={() => resetGame()}
+              className="border-2 p-2 bg-gray-100 text-black"
             >
-              Cat Game
+              Reset Game
+            </button>
+            <Link
+              to="/game/leaderboard"
+              className="border-2 p-2 bg-gray-100 text-black"
+            >
+              Go to leaderboards
             </Link>
           </div>
-          <hr className="mt-2" />
-          {game.status === "done" && (
-            <div className="w-full flex justify-center py-2 mt-2">
-              <div className="flex gap-2">
-                <div className="p-2">
-                  {game.result === "win" && <div>You won!</div>}
-                  {game.result === "lose" && <div>You lost!</div>}
-                </div>
-                <button
-                  onClick={() => resetGame()}
-                  className="border-2 p-2 bg-gray-100 text-black"
-                >
-                  Reset Game
-                </button>
-                <Link
-                  to="/leaderboard"
-                  className="border-2 p-2 bg-gray-100 text-black"
-                >
-                  Go to leaderboards
-                </Link>
-              </div>
-            </div>
-          )}
-          <div className="flex w-full gap-8 items-center justify-center pt-4">
-            <div>
-              <CardStack>
-                {cards.map((card, index) => {
-                  return (
-                    <PlayingCard
-                      data={card}
-                      index={index}
-                      key={`card-${card.id}`}
-                      onClick={(card) => onCardSelect(card)}
-                    />
-                  );
-                })}
-              </CardStack>
-            </div>
+        </div>
+      )}
+      <div className="flex w-full gap-8 items-center justify-center pt-4">
+        <div>
+          <CardStack>
+            {cards.map((card, index) => {
+              return (
+                <PlayingCard
+                  data={card}
+                  index={index}
+                  key={`card-${card.id}`}
+                  onClick={(card) => onCardSelect(card)}
+                />
+              );
+            })}
+          </CardStack>
+        </div>
 
-            <div>
-              {selectedCard ? (
-                <PlayingCard data={selectedCard} />
-              ) : (
-                <EmptyCard />
-              )}
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <div className="border-2 border-dashed h-[6rem] w-[4rem] flex flex-col items-center justify-center">
-              <p>{cardTypes["defuse"].view}</p>
-              <p className="text-xs">x {specialCards.length}</p>
-            </div>
-          </div>
+        <div>
+          {selectedCard ? <PlayingCard data={selectedCard} /> : <EmptyCard />}
         </div>
       </div>
-    </main>
+
+      <div className="mt-8 flex w-full justify-center">
+        <div className="border-2 border-dashed h-[6rem] w-[4rem] flex flex-col items-center justify-center">
+          <p>{cardTypes["defuse"].view}</p>
+          <p className="text-xs">x {specialCards.length}</p>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -23,7 +23,7 @@ export type SignupFormType = {
 export function useSignupMutation() {
   return useMutation({
     mutationFn: async (data: SignupFormType) => {
-      const res = await api.post("/auth/login", data);
+      const res = await api.post("/auth/signup", data);
       return res.data;
     },
   });

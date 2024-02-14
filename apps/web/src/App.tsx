@@ -1,17 +1,19 @@
 import { Theme } from "@radix-ui/themes";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import IndexPage from "./pages/index";
 import LoginPage from "./pages/login";
 import SignupPage from "./pages/signup";
 import GameMain from "./pages/game";
-import { Provider } from "react-redux";
 import { store } from "./features/app/store";
 import HomePage from "./pages/home";
 import LeaderboardPage from "./pages/leaderboard";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LogoutPage from "./pages/logout";
 import { SessionProvider } from "./features/session/SessionProvider";
+import { GameIndex } from "./features/game/GameIndex";
 
 const router = createBrowserRouter([
   {
@@ -31,16 +33,22 @@ const router = createBrowserRouter([
     element: <LogoutPage />,
   },
   {
-    path: "/home",
-    element: <HomePage />,
-  },
-  {
     path: "/game",
-    element: <GameMain />,
-  },
-  {
-    path: "/leaderboard",
-    element: <LeaderboardPage />,
+    element: <GameIndex />,
+    children: [
+      {
+        path: "",
+        element: <HomePage />,
+      },
+      {
+        path: "play",
+        element: <GameMain />,
+      },
+      {
+        path: "leaderboard",
+        element: <LeaderboardPage />,
+      },
+    ],
   },
 ]);
 

@@ -1,3 +1,3 @@
-import { HomePage } from "@/features/home/HomePage";
+import { HomePage } from "@/features/game/HomePage";
 
 export default HomePage;

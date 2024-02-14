@@ -11,7 +11,9 @@ export type SessionProviderProps = {
 export function SessionProvider({ children }: SessionProviderProps) {
   const session = useAppSelector((state) => state.session);
   const { isLoading, isSuccess, isError, data, refetch } =
-    useGetCurrentUserQuery();
+    useGetCurrentUserQuery({
+      retry: 0,
+    });
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   }, [isLoading]);
 
   async function reload() {
-    return refetch();
+    await refetch();
   }
 
   const value = {
