@@ -76,6 +76,7 @@ func CreateApp() *gin.Engine {
 		MaxAge:   60 * 60 * 24,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	})
 
 	app.Use(sessions.Sessions("session", store))

@@ -60,6 +60,7 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 		MaxAge:   86400, // 1 day
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	})
 	if err := session.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save session"})
@@ -119,6 +120,7 @@ func (this *AuthController) Logout(c *gin.Context) {
 		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	})
 
 	if err := session.Save(); err != nil {
