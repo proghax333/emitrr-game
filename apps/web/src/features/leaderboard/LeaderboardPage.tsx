@@ -1,3 +1,5 @@
+import { useGetLeaderboardQuery } from "@/state/game";
+import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 function LeaderboardRow({ data }: any) {
@@ -11,8 +13,22 @@ function LeaderboardRow({ data }: any) {
 }
 
 export function LeaderboardPage() {
-  return (
-    <main className="h-full w-full">
+  const { isLoading, isSuccess, isError, data, error } = useGetLeaderboardQuery(
+    {
+      refetchInterval: 1000,
+    }
+  );
+
+  let contents: ReactNode = null;
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (isError) {
+    contents = <div></div>;
+  } else if (isSuccess && data) {
+    contents = (
       <div className="flex w-full items-center justify-center flex-col pt-8">
         <div className="flex items-center gap-2">
           <Link
@@ -38,24 +54,36 @@ export function LeaderboardPage() {
               </tr>
             </thead>
             <tbody>
-              <LeaderboardRow
-                data={{
-                  rank: 1,
-                  name: "Atmanand Nagpure",
-                  score: 100,
-                }}
-              />
-              <LeaderboardRow
-                data={{
-                  rank: 2,
-                  name: "Jacker Packer Some Company Co.",
-                  score: 50,
-                }}
-              />
+              {(data as any).data.map(
+                (
+                  user: {
+                    id: number;
+                    name: string;
+                    username: string;
+                    score: number;
+                  },
+                  index: number
+                ) => {
+                  return (
+                    <LeaderboardRow
+                      data={{
+                        key: `entry-${user.id}`,
+                        rank: index + 1,
+                        name: user.name,
+                        score: user.score,
+                      }}
+                    />
+                  );
+                }
+              )}
             </tbody>
           </table>
         </div>
       </div>
-    </main>
-  );
+    );
+  }
+
+  console.log(data);
+
+  return <main className="h-full w-full">{contents}</main>;
 }

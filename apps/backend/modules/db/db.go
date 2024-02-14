@@ -3,7 +3,7 @@ package db
 import (
 	"os"
 
-	"github.com/proghax333/emitrr-game/apps/backend/modules/users"
+	"github.com/proghax333/emitrr-game/apps/backend/modules/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -14,7 +14,7 @@ func InitializeDb() (*gorm.DB, error) {
 		return db, err
 	}
 
-	db.AutoMigrate(&users.User{})
+	db.AutoMigrate(&models.User{})
 
 	return db, nil
 }

@@ -2,6 +2,8 @@ export type Card = {
   id: number;
   type: "cat" | "defuse" | "explode" | "shuffle" | "none";
   isFlipped?: boolean;
+  isDefused?: boolean;
+  isShuffled?: boolean;
 };
 
 // export type CardType = {

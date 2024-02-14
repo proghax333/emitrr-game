@@ -9,6 +9,9 @@ import { Provider } from "react-redux";
 import { store } from "./features/app/store";
 import HomePage from "./pages/home";
 import LeaderboardPage from "./pages/leaderboard";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import LogoutPage from "./pages/logout";
+import { SessionProvider } from "./features/session/SessionProvider";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +27,10 @@ const router = createBrowserRouter([
     element: <SignupPage />,
   },
   {
+    path: "/logout",
+    element: <LogoutPage />,
+  },
+  {
     path: "/home",
     element: <HomePage />,
   },
@@ -37,12 +44,18 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 export default function App() {
   return (
-    <Provider store={store}>
-      <Theme appearance="dark" className="h-full font-poppins">
-        <RouterProvider router={router} />
-      </Theme>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <Theme appearance="dark" className="h-full font-poppins">
+          <SessionProvider>
+            <RouterProvider router={router} />
+          </SessionProvider>
+        </Theme>
+      </Provider>
+    </QueryClientProvider>
   );
 }

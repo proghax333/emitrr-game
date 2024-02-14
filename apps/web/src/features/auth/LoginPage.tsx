@@ -1,11 +1,22 @@
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { LoginFormType, useLoginMutation } from "@/state/auth";
 
 export function LoginPage() {
+  const { register, handleSubmit } = useForm<LoginFormType>();
+
+  const loginMutation = useLoginMutation();
+
+  async function onSubmit(data: LoginFormType) {
+    await loginMutation.mutateAsync(data);
+    window.location.href = "/home";
+  }
+
   return (
     <main className="h-full">
       <div className="w-full h-full flex justify-center items-start">
         <div className="w-full max-w-sm mt-20 text-gray-50 bg-slate-800 rounded-lg shadow-lg">
-          <form>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col p-8">
               <h1 className="font-bold text-2xl text-center mt-8 font-inter">
                 Login |{" "}
@@ -14,15 +25,21 @@ export function LoginPage() {
 
               <input
                 className="transition-all outline-none focus:ring-4 text-sm mt-8 bg-gray-700 rounded-lg p-2 px-4"
-                placeholder="Enter username"
+                placeholder="Enter username/email"
+                {...register("login")}
               />
 
               <input
                 className="transition-all outline-none focus:ring-4 text-sm mt-4 bg-gray-700 rounded-lg p-2 px-4"
                 placeholder="Enter password"
+                type="password"
+                {...register("password")}
               />
 
-              <button className="text-center transition-all focus:ring-4 text-sm mt-6 bg-blue-900 rounded-lg p-2 px-4">
+              <button
+                type="submit"
+                className="text-center transition-all focus:ring-4 text-sm mt-6 bg-blue-900 rounded-lg p-2 px-4"
+              >
                 Login
               </button>
 

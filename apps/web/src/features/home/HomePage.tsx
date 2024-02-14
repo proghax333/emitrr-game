@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import { useSession } from "../session/SessionProvider";
 
 export function HomePage() {
+  const { session } = useSession();
+
+  console.log(session);
+
   return (
     <main className="h-full w-full">
       <div className="flex w-full items-center flex-col pt-8">

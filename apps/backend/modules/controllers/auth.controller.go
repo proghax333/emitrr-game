@@ -1,7 +1,6 @@
-package auth
+package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -9,7 +8,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	appcontext "github.com/proghax333/emitrr-game/apps/backend/modules/appcontext"
-	"github.com/proghax333/emitrr-game/apps/backend/modules/users"
+	"github.com/proghax333/emitrr-game/apps/backend/modules/models"
 )
 
 type LoginDTO struct {
@@ -39,19 +38,17 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(data)
-
-	var user users.User
-	result := this.ctx.Db.Model(&users.User{}).First(&user)
+	var user models.User
+	result := this.ctx.Db.Model(&models.User{}).First(&user, "username = ? OR email = ?", data.Login, data.Login)
 
 	if result.Error != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "D: Invalid username or password"})
 		return
 	}
 
 	// Compare hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "B: Invalid username or password"})
 		return
 	}
 
@@ -59,6 +56,7 @@ func (this *AuthController) LoginHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("userID", user.ID)
 	session.Options(sessions.Options{
+		Path:     "/",
 		MaxAge:   86400, // 1 day
 		HttpOnly: true,
 	})
@@ -94,7 +92,7 @@ func (this *AuthController) SignupHandler(c *gin.Context) {
 	}
 
 	// Create a new user object
-	newUser := users.User{
+	newUser := models.User{
 		Name:     userData.Name,
 		Email:    userData.Email,
 		Username: userData.Username,

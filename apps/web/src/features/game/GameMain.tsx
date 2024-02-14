@@ -1,8 +1,20 @@
 import clsx from "clsx";
-import { ReactNode, cloneElement, useState } from "react";
+import { ReactNode, cloneElement, useEffect } from "react";
 import { Card, cardTypes } from "./Card";
-import { useAppSelector } from "../app/hook";
+import { useAppDispatch, useAppSelector } from "../app/hook";
 import { Link } from "react-router-dom";
+import {
+  GameState,
+  addSpecialCard,
+  defuseCard,
+  gameLose,
+  gameWin,
+  setGameState,
+  shuffle,
+  takeSpecialCard,
+  viewCard,
+} from "./gameSlice";
+import { useUpdateUserScoreMutation } from "@/state/user";
 
 type CardStackProps = {
   children: ReactNode;
@@ -28,7 +40,7 @@ function CardStack({ children }: CardStackProps) {
     });
   }
 
-  const count = (children as any[]).length || 0;
+  // const count = (children as any[]).length || 0;
 
   return (
     <div
@@ -86,16 +98,149 @@ function PlayingCard({ data: card, index, onClick = () => {} }: CardProps) {
   );
 }
 
+function createNewGameState(counterOffset: number = 0): GameState {
+  let cards: Card[] = [];
+
+  const items = ["cat", "defuse", "explode", "shuffle"] as const;
+  let counter = counterOffset;
+
+  for (let i = 0; i < 5; ++i, ++counter) {
+    const item = items[Math.floor(Math.random() * items.length)];
+
+    cards.push({
+      id: counterOffset + counter,
+      type: item,
+      isFlipped: false,
+    });
+  }
+
+  // cards = [
+  //   {
+  //     id: 3,
+  //     type: "cat",
+  //   },
+  //   {
+  //     id: 2,
+  //     type: "explode",
+  //   },
+  //   {
+  //     id: 1,
+  //     type: "defuse",
+  //   },
+  // ];
+
+  const result: GameState = {
+    counter,
+    cards,
+    viewedCards: [],
+    specialCards: [],
+    selectedCard: null,
+    status: "running",
+    result: "unknown",
+  };
+
+  return result;
+}
+
 export function GameMain() {
+  const { user } = useAppSelector((state) => state.session);
+  const game = useAppSelector((state) => state.game);
+
   const cards = useAppSelector((state) => state.game.cards);
   const selectedCard = useAppSelector((state) => state.game.selectedCard);
+  const specialCards = useAppSelector((state) => state.game.specialCards);
+
+  const dispatch = useAppDispatch();
+  const updateUserScoreMutation = useUpdateUserScoreMutation();
+
+  function restoreGame() {}
+
+  function resetGame() {
+    const game = createNewGameState();
+    dispatch(setGameState(game));
+  }
+
+  function shuffleGame() {
+    const newGameState = createNewGameState(game.counter);
+
+    const shuffledGameState: Partial<GameState> = {
+      cards: newGameState.cards,
+      counter: newGameState.counter,
+    };
+
+    console.log(newGameState);
+
+    dispatch(shuffle(shuffledGameState));
+  }
+
+  useEffect(() => {
+    let hasSaveGame = false;
+
+    if (hasSaveGame) {
+      restoreGame();
+    } else {
+      resetGame();
+    }
+  }, []);
+
+  // Game business logic
+  useEffect(() => {
+    if (game.status !== "running") {
+      return;
+    }
+
+    const selectedCard = game.selectedCard;
+
+    let lose = false;
+    if (selectedCard?.type === "explode" && !selectedCard.isDefused) {
+      if (game.specialCards.length > 0) {
+        // Use defuse card
+        dispatch(defuseCard(selectedCard));
+      } else {
+        // Lose
+        lose = true;
+        dispatch(gameLose());
+      }
+    } else if (selectedCard?.type === "shuffle" && !selectedCard.isShuffled) {
+      shuffleGame();
+    } else {
+      if (!lose && game.cards.length === 0) {
+        dispatch(gameWin());
+      }
+    }
+  }, [game]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (game.result === "win") {
+      updateUserScoreMutation.mutate({
+        userId: user.id,
+        result: "win",
+      });
+    } else if (game.result === "lose") {
+      updateUserScoreMutation.mutate({
+        userId: user.id,
+        result: "lose",
+      });
+    }
+  }, [user, game.status]);
 
   function onCardSelect(card: Card) {
+    if (game.status !== "running") {
+      return;
+    }
+
     if (card.id !== cards[cards.length - 1].id) {
       return;
     }
 
-    console.log(card);
+    dispatch(viewCard(card));
+    if (card.type === "defuse") {
+      dispatch(addSpecialCard(card));
+    }
   }
 
   return (
@@ -111,6 +256,28 @@ export function GameMain() {
             </Link>
           </div>
           <hr className="mt-2" />
+          {game.status === "done" && (
+            <div className="w-full flex justify-center py-2 mt-2">
+              <div className="flex gap-2">
+                <div className="p-2">
+                  {game.result === "win" && <div>You won!</div>}
+                  {game.result === "lose" && <div>You lost!</div>}
+                </div>
+                <button
+                  onClick={() => resetGame()}
+                  className="border-2 p-2 bg-gray-100 text-black"
+                >
+                  Reset Game
+                </button>
+                <Link
+                  to="/leaderboard"
+                  className="border-2 p-2 bg-gray-100 text-black"
+                >
+                  Go to leaderboards
+                </Link>
+              </div>
+            </div>
+          )}
           <div className="flex w-full gap-8 items-center justify-center pt-4">
             <div>
               <CardStack>
@@ -139,7 +306,7 @@ export function GameMain() {
           <div className="mt-8">
             <div className="border-2 border-dashed h-[6rem] w-[4rem] flex flex-col items-center justify-center">
               <p>{cardTypes["defuse"].view}</p>
-              <p className="text-xs">x 0</p>
+              <p className="text-xs">x {specialCards.length}</p>
             </div>
           </div>
         </div>
