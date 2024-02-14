@@ -1,6 +1,6 @@
 module github.com/proghax333/emitrr-game/apps/backend
 
-go 1.21.7
+go 1.21.6
 
 require (
 	github.com/gin-contrib/cors v1.5.0
