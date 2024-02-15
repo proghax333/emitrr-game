@@ -64,7 +64,6 @@ func CreateApp() *gin.Engine {
 		DB:       REDIS_DB,
 	}
 	redis := redis.NewClient(redisOptions)
-	appContext.Logger.Println("Value: ", *redisOptions)
 	appContext.Redis = redis
 
 	// Initialize HTTP Server
@@ -91,6 +90,12 @@ func CreateApp() *gin.Engine {
 			return true
 		},
 	}))
+
+	app.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+		})
+	})
 
 	v1Router := app.Group("/api/v1")
 
