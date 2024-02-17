@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ReactNode, cloneElement, useEffect } from "react";
+import { ReactNode, cloneElement, useEffect, useMemo } from "react";
 import { Card, cardTypes } from "./Card";
 import { useAppDispatch, useAppSelector } from "../app/hook";
 import { Link } from "react-router-dom";
@@ -14,7 +14,7 @@ import {
   viewCard,
 } from "./gameSlice";
 import { useUpdateUserScoreMutation } from "@/state/user";
-import * as SaveGameManager from "./SaveGameManager";
+import { SaveGameManager } from "./SaveGameManager";
 
 type CardStackProps = {
   children: ReactNode;
@@ -136,6 +136,8 @@ export function GameMain() {
   const dispatch = useAppDispatch();
   const updateUserScoreMutation = useUpdateUserScoreMutation();
 
+  const saveGameManager = useMemo(() => new SaveGameManager(user!), [user]);
+
   function restoreGame(saveGame: GameState) {
     dispatch(setGameState(saveGame));
   }
@@ -158,7 +160,7 @@ export function GameMain() {
 
   useEffect(() => {
     async function go() {
-      const saveGame = await SaveGameManager.getSaveGame();
+      const saveGame = await saveGameManager.getSaveGame();
 
       if (saveGame) {
         restoreGame(saveGame);
@@ -215,9 +217,9 @@ export function GameMain() {
     }
 
     if (game.status === "done") {
-      SaveGameManager.removeSaveGame();
+      saveGameManager.removeSaveGame();
     } else {
-      SaveGameManager.setSaveGame(game);
+      saveGameManager.setSaveGame(game);
     }
   }, [game]);
 
