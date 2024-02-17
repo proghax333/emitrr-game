@@ -44,6 +44,11 @@ export class SaveGameManager {
   }
 
   async removeSaveGame() {
-    localStorage.removeItem("saveGames");
+    const rawSaveGames = await this.getRawSaveGames();
+
+    if (rawSaveGames) {
+      delete rawSaveGames[this.user.id];
+      localStorage.setItem("saveGames", JSON.stringify(rawSaveGames));
+    }
   }
 }
