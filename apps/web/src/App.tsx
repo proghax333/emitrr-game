@@ -14,6 +14,7 @@ import LeaderboardPage from "./pages/leaderboard";
 import LogoutPage from "./pages/logout";
 import { SessionProvider } from "./features/session/SessionProvider";
 import { GameIndex } from "./features/game/GameIndex";
+import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -34,7 +35,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/game",
-    element: <GameIndex />,
+    element: (
+      <ProtectedRoute>
+        <GameIndex />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "",
