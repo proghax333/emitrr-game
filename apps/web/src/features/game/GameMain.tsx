@@ -14,6 +14,7 @@ import {
   viewCard,
 } from "./gameSlice";
 import { useUpdateUserScoreMutation } from "@/state/user";
+import * as SaveGameManager from "./SaveGameManager";
 
 type CardStackProps = {
   children: ReactNode;
@@ -38,8 +39,6 @@ function CardStack({ children }: CardStackProps) {
       });
     });
   }
-
-  // const count = (children as any[]).length || 0;
 
   return (
     <div
@@ -113,21 +112,6 @@ function createNewGameState(counterOffset: number = 0): GameState {
     });
   }
 
-  // cards = [
-  //   {
-  //     id: 3,
-  //     type: "cat",
-  //   },
-  //   {
-  //     id: 2,
-  //     type: "explode",
-  //   },
-  //   {
-  //     id: 1,
-  //     type: "defuse",
-  //   },
-  // ];
-
   const result: GameState = {
     counter,
     cards,
@@ -152,7 +136,9 @@ export function GameMain() {
   const dispatch = useAppDispatch();
   const updateUserScoreMutation = useUpdateUserScoreMutation();
 
-  function restoreGame() {}
+  function restoreGame(saveGame: GameState) {
+    dispatch(setGameState(saveGame));
+  }
 
   function resetGame() {
     const game = createNewGameState();
@@ -171,13 +157,17 @@ export function GameMain() {
   }
 
   useEffect(() => {
-    let hasSaveGame = false;
+    async function go() {
+      const saveGame = await SaveGameManager.getSaveGame();
 
-    if (hasSaveGame) {
-      restoreGame();
-    } else {
-      resetGame();
+      if (saveGame) {
+        restoreGame(saveGame);
+      } else {
+        resetGame();
+      }
     }
+
+    go();
   }, []);
 
   // Game business logic
@@ -219,6 +209,18 @@ export function GameMain() {
     }
   }, [game]);
 
+  useEffect(() => {
+    if (game.status === "unknown") {
+      return;
+    }
+
+    if (game.status === "done") {
+      SaveGameManager.removeSaveGame();
+    } else {
+      SaveGameManager.setSaveGame(game);
+    }
+  }, [game]);
+
   function onCardSelect(card: Card) {
     if (game.status !== "running") {
       return;
@@ -236,28 +238,26 @@ export function GameMain() {
 
   return (
     <div>
-      {game.status === "done" && (
-        <div className="w-full flex justify-center py-2 mt-2">
-          <div className="flex gap-2">
-            <div className="p-2">
-              {game.result === "win" && <div>You won!</div>}
-              {game.result === "lose" && <div>You lost!</div>}
-            </div>
-            <button
-              onClick={() => resetGame()}
-              className="border-2 p-2 bg-gray-100 text-black"
-            >
-              Reset Game
-            </button>
-            <Link
-              to="/game/leaderboard"
-              className="border-2 p-2 bg-gray-100 text-black"
-            >
-              Go to leaderboards
-            </Link>
+      <div className="w-full flex justify-center py-2 mt-2">
+        <div className="flex gap-2">
+          <div className="p-2">
+            {game.result === "win" && <div>You won!</div>}
+            {game.result === "lose" && <div>You lost!</div>}
           </div>
+          <button
+            onClick={() => resetGame()}
+            className="border-2 p-2 bg-gray-100 text-black"
+          >
+            Reset Game
+          </button>
+          <Link
+            to="/game/leaderboard"
+            className="border-2 p-2 bg-gray-100 text-black"
+          >
+            Go to leaderboards
+          </Link>
         </div>
-      )}
+      </div>
       <div className="flex w-full gap-8 items-center justify-center pt-4">
         <div>
           <CardStack>
